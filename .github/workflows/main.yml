@@ -1,8 +1,8 @@
 name: CI-CD
 
 on:
-  #push:
-  #  branches: [ "main" ]
+  push:
+    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
@@ -17,7 +17,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PWD }}
       
-      - name: Build and push
+      - name: Construindo e fazendo push da imagem para o DockerHub
         uses: docker/build-push-action@v3
         with:
           file: ./src/Dockerfile
@@ -33,18 +33,17 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      - name: Kubernetes Set Context
+      - name: Definindo o kubeconfig
         uses: Azure/k8s-set-context@v2
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.K8S_CONFIG }}
       
-      - name: Deploy to Kubernetes cluster
+      - name: Fazendo o deploy no Kubernetes na Digital Ocean
         uses: Azure/k8s-deploy@v3.1
         with:
           images: lupandrioli/kube-news:v${{github.run_number}}
-          manifests: ./k8s/deployment.yaml
-          
+          manifests: ./k8s/deployment.yaml     
 
           
     
